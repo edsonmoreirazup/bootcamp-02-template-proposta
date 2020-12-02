@@ -1,4 +1,4 @@
-package br.com.nossocartao.proposta;
+package br.com.zup.nossocartao.proposta;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
