@@ -2,18 +2,18 @@ package br.com.zup.nossocartao.proposta.cadastroproposta;
 
 import br.com.zup.nossocartao.proposta.cadastroproposta.validation.BloqueiaDocumentoIgualValidator;
 import br.com.zup.nossocartao.proposta.compartilhado.ExecutorTransacao;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.actuate.health.HealthIndicator;
+import org.springframework.boot.actuate.health.Status;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 import java.net.URI;
 
@@ -24,19 +24,18 @@ public class CriaNovaPropostaController {
     private final ExecutorTransacao executorTransacao;
     private final BloqueiaDocumentoIgualValidator bloqueiaDocumentoIgualValidator;
     private final AvaliaProposta avaliaProposta;
-
-    private final Logger logger = LoggerFactory.getLogger(CriaNovaPropostaController.class);
+    private HealthIndicator healthIndicator;
 
     public CriaNovaPropostaController(ExecutorTransacao executorTransacao,
                                       BloqueiaDocumentoIgualValidator bloqueiaDocumentoIgualValidator, AvaliaProposta avaliaProposta) {
         this.executorTransacao = executorTransacao;
         this.bloqueiaDocumentoIgualValidator = bloqueiaDocumentoIgualValidator;
         this.avaliaProposta = avaliaProposta;
-
     }
 
     @PostMapping
-    public ResponseEntity<?> cria(@RequestBody @Valid PropostaRequest propostaRequest, UriComponentsBuilder builder){
+    @Transactional
+    public ResponseEntity<?> cria(@RequestBody @Valid PropostaRequest propostaRequest, UriComponentsBuilder builder) {
 
         if (!bloqueiaDocumentoIgualValidator.estaValido(propostaRequest)) {
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY);
@@ -53,6 +52,15 @@ public class CriaNovaPropostaController {
         URI enderecoConsulta = builder.path("/propostas/{id}")
                 .build(novaProposta.getPropostaId());
         return ResponseEntity.created(enderecoConsulta).build();
+    }
+
+    @GetMapping(path = "/healthcheck")
+    public ResponseEntity<?> healthcheck() {
+        if (Status.UP.equals(healthIndicator.health().getStatus())) {
+            return ResponseEntity.status(HttpStatus.OK).build();
+        }else{
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
 }
