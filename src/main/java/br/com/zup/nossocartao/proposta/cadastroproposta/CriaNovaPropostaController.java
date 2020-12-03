@@ -2,6 +2,8 @@ package br.com.zup.nossocartao.proposta.cadastroproposta;
 
 import br.com.zup.nossocartao.proposta.cadastroproposta.validation.BloqueiaDocumentoIgualValidator;
 import br.com.zup.nossocartao.proposta.compartilhado.ExecutorTransacao;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -19,13 +21,18 @@ import java.net.URI;
 @RequestMapping(path = "/propostas", produces = MediaType.APPLICATION_JSON_VALUE)
 public class CriaNovaPropostaController {
 
-    private ExecutorTransacao executorTransacao;
-    private BloqueiaDocumentoIgualValidator bloqueiaDocumentoIgualValidator;
+    private final ExecutorTransacao executorTransacao;
+    private final BloqueiaDocumentoIgualValidator bloqueiaDocumentoIgualValidator;
+    private final AvaliaProposta avaliaProposta;
+
+    private final Logger logger = LoggerFactory.getLogger(CriaNovaPropostaController.class);
 
     public CriaNovaPropostaController(ExecutorTransacao executorTransacao,
-                                      BloqueiaDocumentoIgualValidator bloqueiaDocumentoIgualValidator) {
+                                      BloqueiaDocumentoIgualValidator bloqueiaDocumentoIgualValidator, AvaliaProposta avaliaProposta) {
         this.executorTransacao = executorTransacao;
         this.bloqueiaDocumentoIgualValidator = bloqueiaDocumentoIgualValidator;
+        this.avaliaProposta = avaliaProposta;
+
     }
 
     @PostMapping
@@ -35,9 +42,11 @@ public class CriaNovaPropostaController {
             throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY);
         }
 
-
         PropostaEntity novaProposta = propostaRequest.toModel();
         executorTransacao.salvaEComita(novaProposta);
+
+        StatusAvaliacaoProposta avaliacao = avaliaProposta.executaAvaliacao(novaProposta);
+        novaProposta.atualizaStatus(avaliacao);
 
         executorTransacao.atualizaEComita(novaProposta);
 

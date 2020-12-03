@@ -1,5 +1,7 @@
 package br.com.zup.nossocartao.proposta.cadastroproposta;
 
+import org.springframework.util.Assert;
+
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
@@ -23,6 +25,9 @@ public class PropostaEntity {
     private @NotBlank String endereco;
     private @NotNull @Positive BigDecimal salario;
 
+    @Enumerated(EnumType.STRING)
+    private StatusAvaliacaoProposta statusAvaliacao;
+
     @Deprecated
     public PropostaEntity() {
 
@@ -35,6 +40,7 @@ public class PropostaEntity {
         this.nome = nome;
         this.endereco = endereco;
         this.salario = salario;
+        this.statusAvaliacao = StatusAvaliacaoProposta.nao_elegivel;
     }
 
     public UUID getPropostaId() {
@@ -61,6 +67,15 @@ public class PropostaEntity {
         return salario;
     }
 
+    public StatusAvaliacaoProposta getStatusAvaliacao() {
+        return statusAvaliacao;
+    }
+
+    public void atualizaStatus(StatusAvaliacaoProposta statusAvaliacao) {
+        Assert.isTrue(this.statusAvaliacao.equals(StatusAvaliacaoProposta.nao_elegivel), "uma vez que a proposta é elegível não pode mais trocar");
+        this.statusAvaliacao = statusAvaliacao;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -83,6 +98,7 @@ public class PropostaEntity {
                 ", nome='" + nome + '\'' +
                 ", endereco='" + endereco + '\'' +
                 ", salario=" + salario +
+                ", statusAvaliacao=" + statusAvaliacao +
                 '}';
     }
 }
