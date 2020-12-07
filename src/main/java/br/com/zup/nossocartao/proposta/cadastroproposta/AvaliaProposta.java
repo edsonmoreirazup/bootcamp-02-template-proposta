@@ -1,6 +1,6 @@
 package br.com.zup.nossocartao.proposta.cadastroproposta;
 
-import br.com.zup.nossocartao.proposta.outrossistemas.AnaliseProposta;
+import br.com.zup.nossocartao.proposta.outrossistemas.AnaliseFinanceiraFeign;
 import br.com.zup.nossocartao.proposta.outrossistemas.PropostaAnaliseRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
@@ -11,18 +11,18 @@ import javax.validation.constraints.NotNull;
 @Validated
 public class AvaliaProposta {
 	
-	private AnaliseProposta analiseProposta;
+	private AnaliseFinanceiraFeign analiseFinanceiraFeign;
 
-	public AvaliaProposta(AnaliseProposta analiseProposta) {
-		this.analiseProposta = analiseProposta;
+	public AvaliaProposta(AnaliseFinanceiraFeign analiseFinanceiraFeign) {
+		this.analiseFinanceiraFeign = analiseFinanceiraFeign;
 	}
 
 	public StatusAvaliacaoProposta executaAvaliacao(@NotNull @Validated PropostaEntity proposta) {
 
-		PropostaAnaliseResponse propostaAnaliseResponse = analiseProposta
+		PropostaAnaliseResponse propostaAnaliseResponse = analiseFinanceiraFeign
 				.analisaProposta(new PropostaAnaliseRequest(proposta));
 
-		return RespostaStatusAvaliacao.valueOf(propostaAnaliseResponse.getResultadoSolicitacao()).getStatusAvaliacao();
+		return RespostaStatusAvaliacao.valueOf(propostaAnaliseResponse.getStatusAvaliacaoValue()).getStatusAvaliacao();
 	}
 
 

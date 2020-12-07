@@ -1,13 +1,12 @@
-package br.com.zup.nossocartao.proposta.cadastroproposta.validation;
-
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
+package br.com.zup.nossocartao.proposta.compartilhado.validation;
 
 import org.hibernate.validator.internal.constraintvalidators.hv.br.CNPJValidator;
 import org.hibernate.validator.internal.constraintvalidators.hv.br.CPFValidator;
 
-public class CpfCnpjValidator
-		implements ConstraintValidator<CpfCnpj, CharSequence> {
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
+
+public class CpfCnpjValidator implements ConstraintValidator<CpfCnpj, CharSequence> {
 
 	@Override
 	public boolean isValid(CharSequence value,

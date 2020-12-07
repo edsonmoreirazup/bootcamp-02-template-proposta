@@ -1,42 +1,16 @@
 package br.com.zup.nossocartao.proposta.cadastroproposta;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class PropostaAnaliseResponse {
 
-    private String documento;
-    private String nome;
-    private String idProposta;
-    private String resultadoSolicitacao;
+    private String statusAvaliacaoValue;
 
-    public PropostaAnaliseResponse(String documento, String nome, String idProposta, String resultadoSolicitacao) {
-        this.documento = documento;
-        this.nome = nome;
-        this.idProposta = idProposta;
-        this.resultadoSolicitacao = resultadoSolicitacao;
+    public PropostaAnaliseResponse(@JsonProperty("resultadoSolicitacao") String statusAvaliacaoValue) {
+        this.statusAvaliacaoValue = statusAvaliacaoValue;
     }
 
-    public String getDocumento() {
-        return documento;
-    }
-
-    public String getNome() {
-        return nome;
-    }
-
-    public String getIdProposta() {
-        return idProposta;
-    }
-
-    public String getResultadoSolicitacao() {
-        return resultadoSolicitacao;
-    }
-
-    @Override
-    public String toString() {
-        return "PropostaAnaliseResponse{" +
-                "documento='" + documento + '\'' +
-                ", nome='" + nome + '\'' +
-                ", idProposta='" + idProposta + '\'' +
-                ", resultadoSolicitacao='" + resultadoSolicitacao + '\'' +
-                '}';
+    public String getStatusAvaliacaoValue() {
+        return statusAvaliacaoValue;
     }
 }

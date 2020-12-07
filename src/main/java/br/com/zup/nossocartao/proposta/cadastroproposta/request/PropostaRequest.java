@@ -1,7 +1,7 @@
-package br.com.zup.nossocartao.proposta.cadastroproposta;
+package br.com.zup.nossocartao.proposta.cadastroproposta.request;
 
-import br.com.zup.nossocartao.proposta.cadastroproposta.validation.CpfCnpj;
-import br.com.zup.nossocartao.proposta.compartilhado.UniqueValue;
+import br.com.zup.nossocartao.proposta.cadastroproposta.PropostaEntity;
+import br.com.zup.nossocartao.proposta.compartilhado.validation.CpfCnpj;
 import com.fasterxml.jackson.annotation.JsonCreator;
 
 import javax.validation.constraints.Email;

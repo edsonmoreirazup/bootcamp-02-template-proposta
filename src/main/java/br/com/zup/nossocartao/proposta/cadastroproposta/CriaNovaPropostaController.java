@@ -1,11 +1,10 @@
 package br.com.zup.nossocartao.proposta.cadastroproposta;
 
-import br.com.zup.nossocartao.proposta.cadastroproposta.validation.BloqueiaDocumentoIgualValidator;
+import br.com.zup.nossocartao.proposta.cadastroproposta.request.PropostaEmailRequest;
+import br.com.zup.nossocartao.proposta.cadastroproposta.request.PropostaRequest;
 import br.com.zup.nossocartao.proposta.compartilhado.ExecutorTransacao;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.actuate.health.HealthIndicator;
-import org.springframework.boot.actuate.health.Status;
+import br.com.zup.nossocartao.proposta.compartilhado.exceptionhandler.EntidadeNaoEncontrada;
+import br.com.zup.nossocartao.proposta.compartilhado.validation.BloqueiaDocumentoIgualValidator;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -24,13 +23,19 @@ public class CriaNovaPropostaController {
     private final ExecutorTransacao executorTransacao;
     private final BloqueiaDocumentoIgualValidator bloqueiaDocumentoIgualValidator;
     private final AvaliaProposta avaliaProposta;
-    private HealthIndicator healthIndicator;
+    private final PropostaRepository propostaRepository;
+
+    private static final String MSG_PROPOSTA_NAO_ENCONTRADA
+            = "Proposta de cpf ou cnpj %s não foi encontrado";
 
     public CriaNovaPropostaController(ExecutorTransacao executorTransacao,
-                                      BloqueiaDocumentoIgualValidator bloqueiaDocumentoIgualValidator, AvaliaProposta avaliaProposta) {
+                                      BloqueiaDocumentoIgualValidator bloqueiaDocumentoIgualValidator,
+                                      AvaliaProposta avaliaProposta,
+                                      PropostaRepository propostaRepository) {
         this.executorTransacao = executorTransacao;
         this.bloqueiaDocumentoIgualValidator = bloqueiaDocumentoIgualValidator;
         this.avaliaProposta = avaliaProposta;
+        this.propostaRepository = propostaRepository;
     }
 
     @PostMapping
@@ -54,13 +59,10 @@ public class CriaNovaPropostaController {
         return ResponseEntity.created(enderecoConsulta).build();
     }
 
-    @GetMapping(path = "/healthcheck")
-    public ResponseEntity<?> healthcheck() {
-        if (Status.UP.equals(healthIndicator.health().getStatus())) {
-            return ResponseEntity.status(HttpStatus.OK).build();
-        }else{
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+    @GetMapping
+    public PropostaEntity findPropostaCpfCnpj(@RequestBody @Valid PropostaEmailRequest proposta) {
+        return propostaRepository.findPropostaEntitiesByCpfCnpj(proposta.getCpfCnpj()).orElseThrow(
+                () -> new EntidadeNaoEncontrada(String.format(MSG_PROPOSTA_NAO_ENCONTRADA,proposta.getCpfCnpj())));
     }
 
 }

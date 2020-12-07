@@ -1,9 +1,9 @@
-package br.com.zup.nossocartao.proposta.cadastroproposta.validation;
+package br.com.zup.nossocartao.proposta.compartilhado.validation;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-import br.com.zup.nossocartao.proposta.cadastroproposta.PropostaRequest;
+import br.com.zup.nossocartao.proposta.cadastroproposta.request.PropostaRequest;
 import org.springframework.stereotype.Component;
 
 @Component

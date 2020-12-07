@@ -1,5 +1,6 @@
 package br.com.zup.nossocartao.proposta.cadastroproposta;
 
+import br.com.zup.nossocartao.proposta.associacartao.CartaoEntity;
 import org.springframework.util.Assert;
 
 import javax.persistence.*;
@@ -27,6 +28,9 @@ public class PropostaEntity {
 
     @Enumerated(EnumType.STRING)
     private StatusAvaliacaoProposta statusAvaliacao;
+
+    @OneToOne(mappedBy = "proposta", cascade = CascadeType.MERGE)
+    CartaoEntity cartao;
 
     @Deprecated
     public PropostaEntity() {
@@ -74,6 +78,12 @@ public class PropostaEntity {
     public void atualizaStatus(StatusAvaliacaoProposta statusAvaliacao) {
         Assert.isTrue(this.statusAvaliacao.equals(StatusAvaliacaoProposta.nao_elegivel), "uma vez que a proposta é elegível não pode mais trocar");
         this.statusAvaliacao = statusAvaliacao;
+    }
+
+    public void associaCartao(String numero) {
+        Assert.isNull(cartao,"ja associou o cartao");
+        Assert.isTrue(this.statusAvaliacao.equals(StatusAvaliacaoProposta.elegivel),"nao rola associar cartao com proposta nao elegivel");
+        this.cartao = new CartaoEntity(numero, this);
     }
 
     @Override
