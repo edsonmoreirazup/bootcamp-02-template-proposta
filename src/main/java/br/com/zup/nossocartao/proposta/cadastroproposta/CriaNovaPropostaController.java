@@ -15,6 +15,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 import java.net.URI;
+import java.util.UUID;
 
 @RestController
 @RequestMapping(path = "/propostas", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -25,8 +26,11 @@ public class CriaNovaPropostaController {
     private final AvaliaProposta avaliaProposta;
     private final PropostaRepository propostaRepository;
 
-    private static final String MSG_PROPOSTA_NAO_ENCONTRADA
+    private static final String MSG_PROPOSTA_NAO_ENCONTRADA_CPFCNPJ
             = "Proposta de cpf ou cnpj %s não foi encontrado";
+
+    private static final String MSG_PROPOSTA_NAO_ENCONTRADA_ID
+            = "Proposta de id %s não foi encontrado";
 
     public CriaNovaPropostaController(ExecutorTransacao executorTransacao,
                                       BloqueiaDocumentoIgualValidator bloqueiaDocumentoIgualValidator,
@@ -62,7 +66,12 @@ public class CriaNovaPropostaController {
     @GetMapping
     public PropostaEntity findPropostaCpfCnpj(@RequestBody @Valid PropostaEmailRequest proposta) {
         return propostaRepository.findPropostaEntitiesByCpfCnpj(proposta.getCpfCnpj()).orElseThrow(
-                () -> new EntidadeNaoEncontrada(String.format(MSG_PROPOSTA_NAO_ENCONTRADA,proposta.getCpfCnpj())));
+                () -> new EntidadeNaoEncontrada(String.format(MSG_PROPOSTA_NAO_ENCONTRADA_CPFCNPJ,proposta.getCpfCnpj())));
     }
 
+    @GetMapping(path = "/{propostaId}")
+    public PropostaEntity findPropostaId(@PathVariable UUID propostaId) {
+        return propostaRepository.findById(propostaId).orElseThrow(
+                () -> new EntidadeNaoEncontrada(String.format(MSG_PROPOSTA_NAO_ENCONTRADA_ID,propostaId.toString())));
+    }
 }
