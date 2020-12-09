@@ -144,7 +144,17 @@ services:
       VAULT_DEV_ROOT_TOKEN_ID: ee413645-dbe8-4848-afc6-6bb2768ada75
       VAULT_TOKEN: ee413645-dbe8-4848-afc6-6bb2768ada75
       VAULT_ADDR: http://127.0.0.1:8200
-      
+
+  proposta:
+    image: edsonmoreirajr/proposta:latest
+    container_name: proposta
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql_proposta
+    environment:
+      - DATABASE_HOST=mysql_proposta
+
   mysql_proposta:
     image: mysql:8.0.22
     container_name: mysql_proposta
@@ -166,8 +176,7 @@ services:
       - 3307:3306
     volumes:
       - mysql-transacao:\var\lib\mysql
-      
-      
+
   mysql_fatura:
     image: mysql:8.0.22
     container_name: mysql_fatura
@@ -178,7 +187,6 @@ services:
       - 3308:3306
     volumes:
       - mysql-fatura:\var\lib\mysql
-
 
 volumes:
   grafana-volume:
