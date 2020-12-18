@@ -1,7 +1,7 @@
 package br.com.zup.nossocartao.proposta.cadastroproposta;
 
+import br.com.zup.nossocartao.proposta.associacartao.PropostaAnaliseRequest;
 import br.com.zup.nossocartao.proposta.outrossistemas.AnaliseFinanceiraFeign;
-import br.com.zup.nossocartao.proposta.outrossistemas.PropostaAnaliseRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 

@@ -2,7 +2,7 @@ package br.com.zup.nossocartao.proposta.cadastroproposta;
 
 public enum RespostaStatusAvaliacao {
 
-	COM_RESTRICAO(StatusAvaliacaoProposta.nao_elegivel),SEM_RESTRICAO(StatusAvaliacaoProposta.elegivel);
+	COM_RESTRICAO(StatusAvaliacaoProposta.NAO_ELEGIVEL),SEM_RESTRICAO(StatusAvaliacaoProposta.ELEGIVEL);
 	
 	StatusAvaliacaoProposta statusAvaliacao;
 

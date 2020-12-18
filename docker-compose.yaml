@@ -171,7 +171,7 @@ services:
     container_name: mysql_proposta
     environment:
       MYSQL_ROOT_PASSWORD: MySql2020@
-      MYSQL_DATABASE: mysql_proposta
+      MYSQL_DATABASE: proposta
     ports:
       - 3306:3306
     volumes:
@@ -182,7 +182,7 @@ services:
     container_name: mysql_transacao
     environment:
       MYSQL_ROOT_PASSWORD: MySql2020@
-      MYSQL_DATABASE: mysql_transacao
+      MYSQL_DATABASE: transacao
     ports:
       - 3307:3306
     volumes:
@@ -193,7 +193,7 @@ services:
     container_name: mysql_fatura
     environment:
       MYSQL_ROOT_PASSWORD: MySql2020@
-      MYSQL_DATABASE: mysql_fatura
+      MYSQL_DATABASE: fatura
     ports:
       - 3308:3306
     volumes:

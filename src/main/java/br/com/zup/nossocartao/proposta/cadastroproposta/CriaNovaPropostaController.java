@@ -1,13 +1,16 @@
 package br.com.zup.nossocartao.proposta.cadastroproposta;
 
-import br.com.zup.nossocartao.proposta.cadastroproposta.request.PropostaEmailRequest;
 import br.com.zup.nossocartao.proposta.cadastroproposta.request.PropostaRequest;
 import br.com.zup.nossocartao.proposta.compartilhado.ExecutorTransacao;
-import br.com.zup.nossocartao.proposta.compartilhado.exceptionhandler.EntidadeNaoEncontrada;
+import br.com.zup.nossocartao.proposta.compartilhado.exceptionhandler.ApiErrorException;
 import br.com.zup.nossocartao.proposta.compartilhado.validation.BloqueiaDocumentoIgualValidator;
+import io.opentracing.Span;
+import io.opentracing.Tracer;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -15,6 +18,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 import java.net.URI;
+import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -25,21 +29,17 @@ public class CriaNovaPropostaController {
     private final BloqueiaDocumentoIgualValidator bloqueiaDocumentoIgualValidator;
     private final AvaliaProposta avaliaProposta;
     private final PropostaRepository propostaRepository;
-
-    private static final String MSG_PROPOSTA_NAO_ENCONTRADA_CPFCNPJ
-            = "Proposta de cpf ou cnpj %s não foi encontrado";
-
-    private static final String MSG_PROPOSTA_NAO_ENCONTRADA_ID
-            = "Proposta de id %s não foi encontrado";
+    private final Tracer tracer;
 
     public CriaNovaPropostaController(ExecutorTransacao executorTransacao,
                                       BloqueiaDocumentoIgualValidator bloqueiaDocumentoIgualValidator,
                                       AvaliaProposta avaliaProposta,
-                                      PropostaRepository propostaRepository) {
+                                      PropostaRepository propostaRepository, Tracer tracer) {
         this.executorTransacao = executorTransacao;
         this.bloqueiaDocumentoIgualValidator = bloqueiaDocumentoIgualValidator;
         this.avaliaProposta = avaliaProposta;
         this.propostaRepository = propostaRepository;
+        this.tracer = tracer;
     }
 
     @PostMapping
@@ -63,15 +63,21 @@ public class CriaNovaPropostaController {
         return ResponseEntity.created(enderecoConsulta).build();
     }
 
-    @GetMapping
-    public PropostaEntity findPropostaCpfCnpj(@RequestBody @Valid PropostaEmailRequest proposta) {
-        return propostaRepository.findPropostaEntitiesByCpfCnpj(proposta.getCpfCnpj()).orElseThrow(
-                () -> new EntidadeNaoEncontrada(String.format(MSG_PROPOSTA_NAO_ENCONTRADA_CPFCNPJ,proposta.getCpfCnpj())));
-    }
-
     @GetMapping(path = "/{propostaId}")
-    public PropostaEntity findPropostaId(@PathVariable UUID propostaId) {
-        return propostaRepository.findById(propostaId).orElseThrow(
-                () -> new EntidadeNaoEncontrada(String.format(MSG_PROPOSTA_NAO_ENCONTRADA_ID,propostaId.toString())));
+    public ResponseEntity<PropostaResponse> findPropostaId(@PathVariable UUID propostaId, @AuthenticationPrincipal Jwt jwt) {
+        Optional<PropostaEntity> propostaOptional = propostaRepository.findById(propostaId);
+
+        PropostaEntity proposta = propostaOptional.orElseThrow(() -> {
+            throw new ApiErrorException(HttpStatus.NOT_FOUND, "Proposta não encontrada.");
+        });
+
+        if(!proposta.pertenceAoUsuario(jwt.getClaimAsString("email"))){
+            throw new ApiErrorException(HttpStatus.FORBIDDEN, "\n" + "A proposta não pertence a este usuário");
+        }
+
+        Span activeSpan = tracer.activeSpan();
+        activeSpan.setTag("user.email", jwt.getClaimAsString("email"));
+
+        return ResponseEntity.ok(PropostaResponse.fromModel(proposta));
     }
 }

@@ -1,5 +1,5 @@
 package br.com.zup.nossocartao.proposta.cadastroproposta;
 
 public enum StatusAvaliacaoProposta {
-	nao_elegivel, elegivel
+	NAO_ELEGIVEL, ELEGIVEL, ABERTA, CARTAO_EMITIDO
 }

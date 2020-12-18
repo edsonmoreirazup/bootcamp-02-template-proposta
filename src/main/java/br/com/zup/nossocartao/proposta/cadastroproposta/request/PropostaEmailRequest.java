@@ -10,6 +10,7 @@ public class PropostaEmailRequest {
     @NotBlank
     @CpfCnpj
     private String cpfCnpj;
+
     @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
     public PropostaEmailRequest(@NotBlank String cpfCnpj) {
         this.cpfCnpj = cpfCnpj;
